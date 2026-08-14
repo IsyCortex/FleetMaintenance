@@ -1,0 +1,8 @@
+# Local environment files (never commit real secrets)
+.env
+
+# Node
+node_modules/
+
+# Logs
+*.log

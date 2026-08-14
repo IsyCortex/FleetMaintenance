@@ -1,0 +1,23 @@
+{
+  "name": "fleet-maintenance",
+  "version": "0.1.0",
+  "description": "Fleet Maintenance MVP - AI-assisted defect reporting and maintenance workflow",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --env-file=.env --watch src/server.js",
+    "db:setup": "node --env-file=.env db/setup.js",
+    "test": "node --test tests/reportService.test.js tests/workOrderService.test.js"
+  },
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

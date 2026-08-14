@@ -1,0 +1,25 @@
+# Local development infrastructure only.
+# Runs a single PostgreSQL instance for the Fleet Maintenance MVP.
+# Start with:   docker compose up -d
+# Stop with:    docker compose down          (keeps the data volume)
+# Remove data:  docker compose down -v       (deletes the named volume)
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fleet-maintenance-db
+    environment:
+      POSTGRES_USER: fleet
+      POSTGRES_PASSWORD: fleet
+      POSTGRES_DB: fleetmaintenance
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fleet -d fleetmaintenance"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:
