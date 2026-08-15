@@ -810,6 +810,34 @@ Stable architectural decisions can continue to be extracted from this living log
 
 ---
 
+## 12. TICKET-9 — Portfolio Polish (M5)
+
+TICKET-9 consolidates the project into a presentable reference implementation. Completed as part of M5:
+
+### README.md
+- Rewritten as the primary landing document
+- Explains the AI-assisted workflow with the "AI = proposal, validation mandatory" framing
+- Documents the human-in-the-loop boundary with a clear diagram
+- Includes prerequisites, setup, usage, architecture, and ADR summary
+- Lists all 28 tests as passing
+
+### Architecture Documentation (docs/)
+- docs/architecture.md — Component boundaries (Browser, API, Service, DB, AI Analyzer), data flow diagrams, DB schema, human-in-the-loop boundary, ADR references
+- docs/architecture-diagram.svg — Visual component diagram with layered architecture
+- docs/testing.md — Test files, patterns (fake DB/analyzer), running instructions, coverage gaps
+- docs/demo-walkthrough.md — End-to-end demo scenario showing the complete workflow (report -> AI proposal -> confirm -> Issue -> Work Order -> transition -> invalid transition rejection)
+
+### Test Suite Verification
+- All 28 tests pass: `npm test`
+- No live database or LLM required for the core unit test suite
+- Tests cover: report submission (manual/AI), confirmation (transactional), rejection, AI proposal-only invariant, work-order creation, status transitions (valid/invalid, terminal enforcement), and analyzer contract validation
+
+### Environment Configuration
+- .env.example documents AI_PROVIDER=fake (default) vs AI_PROVIDER=local (Ollama)
+- LOCAL_LLM_TIMEOUT_MS=0 means no timeout (allows long local inference)
+
+---
+
 ## 13. Documentation Principle
 
 This document should remain **concurrent with development**.

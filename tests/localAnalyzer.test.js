@@ -9,7 +9,7 @@ const assert = require("node:assert/strict");
 const { createLocalAnalyzer } = require("../src/services/analyzers/localAnalyzer");
 const { AIAnalysisFailed, AIInvalidResponse } = require("../src/services/aiAnalyzer");
 
-const URL = "http://192.168.178.37:11434";
+const URL = "http://localhost:11434";
 const MODEL = "qwen3:30b-a3b";
 
 // Build a fake fetch that returns a canned HTTP Response.

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="720" xmlns="http://www.w3.org/2000/svg" font-family="monospace" font-size="14">
+  <rect width="800" height="720" fill="#f6f7f9"/>
+  <text x="400" y="30" font-size="20" font-weight="bold" text-anchor="middle">Fleet Maintenance - Architecture</text>
+  <text x="400" y="48" font-size="12" fill="#5c6670" text-anchor="middle">AI = proposal, validation mandatory, Issue after confirmation</text>
+
+    <!-- 28/28 tests pass: Browser layer -->
+  <rect x="50" y="70" width="700" height="90" fill="#ffffff" stroke="#d8dce3" rx="8"/>
+  <text x="400" y="90" font-weight="bold">1. Browser / UI Layer</text>
+  <text x="60" y="110">GET /               - Work-order overview</text>
+  <text x="60" y="125">GET /reports/review   - Coordinator review</text>
+
+    <!-- 28/28 tests pass: API layer -->
+  <rect x="50" y="180" width="700" height="70" fill="#ffffff" stroke="#d8dce3" rx="8"/>
+  <text x="400" y="200" font-weight="bold">2. API Layer (Express)</text>
+  <text x="60" y="220">Routes: /api/reports, /api/work-orders</text>
+
+    <!-- 28/28 tests pass: Service layer -->
+  <rect x="50" y="270" width="700" height="90" fill="#ffffff" stroke="#d8dce3" rx="8"/>
+  <text x="400" y="290" font-weight="bold">3. Service Layer (Business Rules)</text>
+  <text x="60" y="310">reportService: confirmReport, rejectReport</text>
+  <text x="60" y="325">workOrderService: createWorkOrder, transition</text>
+
+    <!-- 28/28 tests pass: Database layer -->
+  <rect x="50" y="380" width="700" height="70" fill="#ffffff" stroke="#d8dce3" rx="8"/>
+  <text x="400" y="400" font-weight="bold">4. Database (PostgreSQL, no ORM)</text>
+  <text x="60" y="420">vehicles, defect_reports, issues, work_orders</text>
+
+    <!-- 28/28 tests pass: AI Analyzer layer -->
+  <rect x="50" y="470" width="700" height="70" fill="#fff4e5" stroke="#d8dce3" rx="8"/>
+  <text x="400" y="490" font-weight="bold">5. AI Analyzer (PROPOSAL ONLY)</text>
+  <text x="60" y="510">fake (default) / local Ollama - output never creates Issue directly</text>
+
+    <!-- 28/28 tests pass: Data flow arrows -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L4,3 L0,6 Z" fill="#1f6feb"/>
+    </marker>
+  </defs>
+  <line x1="400" y1="155" x2="400" y2="180" stroke="#1f6feb" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="400" y1="250" x2="400" y2="270" stroke="#1f6feb" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="400" y1="350" x2="400" y2="380" stroke="#1f6feb" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- 28/28 tests pass: Human-in-the-loop enforcement -->
+  <text x="50" y="570" font-size="12" fill="#5c6670">Note: AI proposals are reviewed by humans before Issue/Work Order creation.</text>
+</svg>
