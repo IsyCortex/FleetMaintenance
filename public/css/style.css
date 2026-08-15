@@ -118,3 +118,85 @@ h3 { margin: 0 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-sp
 }
 
 .site-footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 1rem; }
+/* -- work-order browser overview (TICKET-8) -- */
+
+.issues-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.issue-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.issue-card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.issue-card .vehicle {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.6rem;
+}
+
+.issue-card .raw-text {
+  margin: 0.4rem 0;
+  padding: 0.6rem 0.8rem;
+  background: #eef1f5;
+  border-left: 3px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.issue-card .meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.issue-card .create-wo-form {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.issue-card .create-wo-form input,
+.issue-card .create-wo-form textarea {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: inherit;
+  background: #fff;
+}
+
+.issue-card .create-wo-form .actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.issue-card .create-wo-form .btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.88rem;
+}
+
+/* Empty state */
+.empty {
+  color: var(--muted);
+  padding: 2rem;
+  text-align: center;
+}

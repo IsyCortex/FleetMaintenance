@@ -558,8 +558,31 @@ Implemented a browser review page that builds on the existing workflow:
 - Confirm/reject actions are performed by `public/js/review.js` against the existing API endpoints with the established payloads; API error messages (e.g. REPORT_NOT_PENDING) are shown inline. No second workflow exists.
 - Verified end-to-end: review page renders (HTTP 200), assets served, confirm flow creates an issue, double-confirm correctly returns REPORT_NOT_PENDING.
 - Automated suite stayed green at 28/28 (no new business logic to test).
-- Deliberately out of scope: report-creation UI (APIs already exist), work-order UI (TICKET-8), auth, pagination.
+- Deliberately out of scope: report-creation UI (APIs already exist), auth, pagination.
+
 ---
+
+## 10d. TICKET-8 — Work-Order Browser UI
+
+Implemented a browser-based work-order creation workflow that builds on the existing TICKET-4 workflow:
+
+- **EJS view layer** added: `views/work-orders/overview.ejs` with `ejs` dependency
+- `GET /work-orders` is a thin render route calling the existing `getEligibleIssues()` service - it contains zero business logic
+- Each eligible open issue (no existing work order) renders with raw text + reporter, with a create-work-order form
+- Form submission uses the existing `POST /api/work-orders` API endpoint (TICKET-4) with `{issueId, assignedTo, notes}`
+- Confirm/reject and status transition actions reuse the existing generic transition endpoint
+- Inline error handling from API is surfaced as-is for the user
+- Vanilla JavaScript + plain CSS (no React)
+- Only offers Issues that are open and do not already have an associated work order
+- Business rules remain in the service/API layer
+
+- Verified end-to-end: work-order overview page renders (HTTP 200), assets served, create flow creates a work order via the existing API
+- Automated suite stayed green at 28/28 (no new business logic tests)
+- Deliberately out of scope: report-creation UI, auth, pagination, editing notes/assignment, React
+
+---
+
+## 11. Next Steps
 
 ## 11. Next Steps
 

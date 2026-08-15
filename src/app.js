@@ -11,6 +11,7 @@ const pool = require("./db/pool");
 const { createApiRouter: reportsRouter } = require("./routes/reports");
 const { createApiRouter: workOrdersRouter } = require("./routes/workOrders");
 const { createReviewRouter } = require("./routes/review");
+const { createWorkOrdersBrowserRouter } = require("./routes/workOrdersBrowser");
 
 function createApp() {
   const app = express();
@@ -37,6 +38,9 @@ function createApp() {
 
   // Browser (HTML) - thin rendering over the existing services/APIs -------
   app.use(createReviewRouter({ db, pool }));
+
+  // Browser (HTML) - work-order overview (TICKET-8)
+  app.use("/work-orders", createWorkOrdersBrowserRouter({ db, pool }));
 
   return app;
 }

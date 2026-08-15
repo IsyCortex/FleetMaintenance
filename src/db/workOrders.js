@@ -62,4 +62,19 @@ async function setStatus(client, workOrderId, status, completedAt) {
   return rows[0];
 }
 
-module.exports = { getIssue, createWorkOrder, listWorkOrders, lockWorkOrderForUpdate, setStatus };
+// Return open issues that do not already have an associated work order.
+// Used by the browser-based work-order overview page.
+async function getEligibleIssues(client) {
+  const { rows } = await client.query(`
+    SELECT i.id AS issue_id, v.label AS vehicle_label, dr.raw_text, dr.reported_by_name
+    FROM issues i
+    JOIN defect_reports dr ON dr.id = i.defect_report_id
+    JOIN vehicles v ON v.id = dr.vehicle_id
+    WHERE i.status = 'open'
+    AND i.id NOT IN (SELECT DISTINCT issue_id FROM work_orders WHERE issue_id IS NOT NULL)
+    ORDER BY i.id DESC
+  `);
+  return rows;
+}
+
+module.exports = { getIssue, createWorkOrder, listWorkOrders, lockWorkOrderForUpdate, setStatus, getEligibleIssues };

@@ -1,0 +1,38 @@
+<%- include('../partials/header', { title: 'Create Work Order' }); %>
+
+<h1>Create Work Order from Issue</h1>
+
+<% if (issues.length === 0) { %>
+  <p class="empty">No eligible issues. All open issues already have work orders, or there are no open issues.</p>
+<% } else { %>
+  <section class="issues-grid">
+    <% issues.forEach((issue) => { %>
+      <div class="issue-card" data-issue-id="<%= issue.issue_id %>">
+        <h2>Issue #<%= issue.issue_id %></h2>
+        <div class="vehicle"><%= issue.vehicle_label %></div>
+        <p class="raw-text"><%= issue.raw_text %></p>
+        <p class="meta">Reported by <%= issue.reported_by_name %></p>
+
+        <form class="create-wo-form" action="/api/work-orders" method="post">
+          <input type="hidden" name="issueId" value="<%= issue.issue_id %>">
+          <div class="field">
+            <label>Assigned To</label>
+            <input type="text" name="assignedTo" placeholder="e.g. Bob" required>
+          </div>
+          <div class="field">
+            <label>Notes</label>
+            <textarea name="notes" rows="2" placeholder="Optional notes..."></textarea>
+          </div>
+          <div class="actions">
+            <button type="submit" class="btn create-wo">Create work order</button>
+          </div>
+          <p class="form-error" role="alert" hidden></p>
+        </form>
+      </div>
+    <% }) %>
+  </section>
+<% } %>
+
+<script src="/js/workOrders.js"></script>
+
+<%- include('../partials/footer'); %>
