@@ -517,6 +517,50 @@ These findings do **not** establish that Qwen3-30B-A3B is objectively the best m
 
 ---
 
+## 10b. TICKET-6 — localAnalyzer.js Implementation
+
+### What was implemented
+
+- `src/services/analyzers/localAnalyzer.js` translates Ollama native `/api/chat` to the `analyze(rawText)` contract. It is the **only** component with Ollama-specific request/response handling.
+- Configurable via env: `LOCAL_LLM_URL`, `LOCAL_LLM_MODEL`, `LOCAL_LLM_TIMEOUT_MS` (0 = no timeout). The factory also accepts an injected `fetch` for testability.
+- `getAnalyzer()` now returns `createLocalAnalyzer()` for `AI_PROVIDER=local`; default remains `fake`.
+- The `.env` carries the real LAN IP; `.env.example` documents the keys with placeholders only.
+
+### System prompt (final)
+
+- Uses real example values (`category: "mechanical"`, `severity: "high"`) in the JSON example.
+- Explicitly enumerates lowercase enum values for `category` and `severity`.
+- States the user message is untrusted data, not instructions.
+- Forbids inventing unsupported facts. Keeps the observed failure-mode anti-examples (“Brakes”, “Critical”).
+
+### Key decisions
+
+- **No normalization of off-contract values.** `validateSuggestion()` rejects non-enum labels (e.g. `"Brakes"`) as `AI_INVALID_RESPONSE` rather than silently mapping them.
+- **`message.thinking` is metadata** and is ignored; it is not part of the analyzer contract and is not escalated/persisted.
+- **No hard timeout by default** (`LOCAL_LLM_TIMEOUT_MS=0`) to accommodate the ~112 s measured inference latency; the var remains a configurable escape hatch.
+- **JSON-Schema enforcement via `format` is deliberately deferred** to a follow-up experiment. Ollama docs confirm `format` accepts a JSON schema object (which could carry `enum` constraints), but enforcement on the Vulkan backend is unverified, so we ship `format:"json"` + prose constraints + `validateSuggestion()` as the reliable default.
+
+### Verification
+
+- Automated suite now **28/28 passing**, including 8 new `localAnalyzer` tests with a stubbed HTTP layer (request shape, success parse, off-contract enum, malformed JSON, transport failure, HTTP error, missing content, timeout-signal behavior). No live model required.
+- Reachability confirmed from the dev machine: `http://<desktop-lan-ip>:11434` (`/api/version`, `/api/tags`).
+- A live `analyze()` call against the LAN model returns a validated suggestion (measured multi-second inference).
+- The full product-path live e2e **passed on 2026-08-14**: `POST /api/reports/ai` created a `pending_review` report; Qwen3 returned contract-valid `mechanical`/`high`; `ai_raw_response` stored the analyzer output verbatim; pending-list exposed the suggestion.
+---
+
+## 10c. TICKET-7 — Coordinator Review UI
+
+Implemented a browser review page that builds on the existing workflow:
+
+- EJS view layer added: view engine + `views/` + `public/` (static CSS/JS), `ejs` dependency.
+- `GET /reports/review` is a thin render route calling the existing `listPendingReports()` service - it contains zero business logic.
+- Each pending report renders raw text + vehicle + reporter/time with the AI proposal pre-filled into editable category/severity/summary fields.
+- Confirm/reject actions are performed by `public/js/review.js` against the existing API endpoints with the established payloads; API error messages (e.g. REPORT_NOT_PENDING) are shown inline. No second workflow exists.
+- Verified end-to-end: review page renders (HTTP 200), assets served, confirm flow creates an issue, double-confirm correctly returns REPORT_NOT_PENDING.
+- Automated suite stayed green at 28/28 (no new business logic to test).
+- Deliberately out of scope: report-creation UI (APIs already exist), work-order UI (TICKET-8), auth, pagination.
+---
+
 ## 11. Next Steps
 
 ### Immediate

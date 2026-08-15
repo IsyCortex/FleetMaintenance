@@ -60,7 +60,10 @@ function getAnalyzer() {
   switch (process.env.AI_PROVIDER || "fake") {
     case "fake":
       return require("./analyzers/fakeAnalyzer");
-    // case "local": return require("./analyzers/localAnalyzer"); // TICKET-6+
+    case "local":
+      // A plain analyzer object matching the analyze(rawText) contract;
+      // createLocalAnalyzer wires the Ollama request/response translation.
+      return require("./analyzers/localAnalyzer").createLocalAnalyzer();
     default:
       // Safe fallback: unknown provider -> deterministic fake.
       return require("./analyzers/fakeAnalyzer");

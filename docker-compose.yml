@@ -6,6 +6,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     container_name: fleet-maintenance-db
     environment:
       POSTGRES_USER: fleet

@@ -1,0 +1,120 @@
+/* Fleet Maintenance - coordinator review UI (minimal, function-first) */
+
+:root {
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --border: #d8dce3;
+  --text: #1c2430;
+  --muted: #5c6670;
+  --accent: #1f6feb;
+  --reject: #c04433;
+  --ok: #1a7f37;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 2rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .brand { font-weight: 700; text-decoration: none; color: var(--text); }
+.site-header nav a { margin-left: 1rem; color: var(--accent); text-decoration: none; }
+
+.container { max-width: 900px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.05rem; margin: 0 0 0.35rem; }
+h3 { margin: 0 0 0.5rem; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+
+.empty { color: var(--muted); }
+
+.report-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.vehicle {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.05rem 0.6rem;
+}
+
+.raw-text {
+  margin: 0.4rem 0;
+  padding: 0.6rem 0.8rem;
+  background: #eef1f5;
+  border-left: 3px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+.meta { color: var(--muted); font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
+
+.ai-proposal {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.6rem;
+}
+.ai-proposal.real { background: #ddf4ff; color: #0969da; }
+.ai-proposal.manual { background: #f6f8fa; color: var(--muted); border: 1px dashed var(--border); }
+
+.confirm-form .field { margin-bottom: 0.55rem; }
+.confirm-form label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.15rem; }
+.confirm-form select,
+.confirm-form input,
+.confirm-form textarea {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: inherit;
+  background: #fff;
+}
+
+.actions { display: flex; gap: 0.6rem; margin-top: 0.7rem; }
+.btn {
+  border: none;
+  border-radius: 5px;
+  padding: 0.45rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn.confirm { background: var(--ok); color: #fff; }
+.btn.reject { background: transparent; color: var(--reject); border: 1px solid var(--reject); }
+
+.form-error {
+  margin-top: 0.7rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 5px;
+  background: #fff1f0;
+  border: 1px solid #f08888;
+  color: var(--reject);
+  font-size: 0.88rem;
+}
+
+.site-footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 1rem; }

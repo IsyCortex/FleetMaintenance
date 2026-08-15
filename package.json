@@ -8,12 +8,13 @@
     "start": "node --env-file=.env src/server.js",
     "dev": "node --env-file=.env --watch src/server.js",
     "db:setup": "node --env-file=.env db/setup.js",
-    "test": "node --test tests/reportService.test.js tests/workOrderService.test.js"
+    "test": "node --test tests/reportService.test.js tests/workOrderService.test.js tests/localAnalyzer.test.js"
   },
   "engines": {
     "node": ">=20.6.0"
   },
   "dependencies": {
+    "ejs": "^6.0.1",
     "express": "^4.19.2",
     "pg": "^8.12.0"
   },

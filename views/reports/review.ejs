@@ -1,0 +1,62 @@
+<%- include('../partials/header', { title }); %>
+
+<h1>Review pending defect reports</h1>
+
+<% if (reports.length === 0) { %>
+  <p class="empty">No pending reports. All caught up!</p>
+<% } %>
+
+<% reports.forEach((report) => { %>
+  <section class="report-card" data-report-id="<%= report.id %>">
+    <h2>
+      Report #<%= report.id %>
+      <span class="vehicle"><%= report.vehicle_label %></span>
+    </h2>
+
+    <blockquote class="raw-text"><%= report.raw_text %></blockquote>
+    <p class="meta">Reported by <%= report.reported_by_name %> · <%= new Date(report.reported_at).toLocaleString() %></p>
+
+    <%
+      const hasAi = !!(report.ai_suggested_category && report.ai_suggested_category !== 'other' && report.ai_suggested_summary && report.ai_suggested_summary !== 'Pending coordinator review.')
+    %>
+    <div class="ai-proposal <%= hasAi ? 'real' : 'manual' %>">
+      <strong><%= hasAi ? 'AI proposal' : 'Manual report (no AI suggestion)' %></strong>
+    </div>
+
+    <form class="confirm-form" action="/api/reports/<%= report.id %>/confirm" method="post">
+      <h3>Confirm as an Issue</h3>
+      <div class="field">
+        <label for="category-<%= report.id %>">Category</label>
+        <select id="category-<%= report.id %>" name="category">
+          <% ['mechanical','electrical','body','safety','other'].forEach((c) => { %>
+            <option value="<%= c %>" <%= report.ai_suggested_category === c ? 'selected' : '' %>><%= c %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="severity-<%= report.id %>">Severity</label>
+        <select id="severity-<%= report.id %>" name="severity">
+          <% ['low','medium','high','critical'].forEach((s) => { %>
+            <option value="<%= s %>" <%= report.ai_suggested_severity === s ? 'selected' : '' %>><%= s %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="field">
+        <label for="summary-<%= report.id %>">Summary</label>
+        <textarea id="summary-<%= report.id %>" name="summary" rows="2"><%= report.ai_suggested_summary %></textarea>
+      </div>
+      <div class="field">
+        <label for="confirm-by-<%= report.id %>">Confirmed by</label>
+        <input id="confirm-by-<%= report.id %>" name="confirmedByName" type="text" required placeholder="Coordinator name">
+      </div>
+      <div class="actions">
+        <button type="submit" class="btn confirm">Confirm issue</button>
+        <button type="button" class="btn reject" data-action="reject" data-id="<%= report.id %>">Reject</button>
+      </div>
+      <p class="form-error" role="alert" hidden></p>
+    </form>
+  </section>
+<% }) %>
+
+<script src="/js/review.js"></script>
+<%- include('../partials/footer') %>
