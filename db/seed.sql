@@ -5,6 +5,9 @@
 -- (TICKET-3/5), so the two reports below are optional demo data only.
 -- ============================================================================
 
+-- Reset demo data -------------------------------------------------------------
+TRUNCATE work_orders, issues, defect_reports, vehicles RESTART IDENTITY CASCADE;
+
 -- Sample fleet ---------------------------------------------------------------
 INSERT INTO vehicles (label, license_plate, odometer) VALUES
   ('Van 1', 'FM-XV-001', 84250),

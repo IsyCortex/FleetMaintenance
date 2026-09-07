@@ -23,7 +23,7 @@
 -- ----------------------------------------------------------------------------
 -- VEHICLES - reference data for the fleet.
 -- ----------------------------------------------------------------------------
-CREATE TABLE vehicles (
+CREATE TABLE IF NOT EXISTS vehicles (
   id            integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   label         varchar(50)  NOT NULL,
   license_plate varchar(20)  NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE vehicles (
 -- DEFECT_REPORTS - the raw report + the AI's proposal ("AI proposes").
 -- The user always explicitly selects the vehicle; the AI never sets it.
 -- ----------------------------------------------------------------------------
-CREATE TABLE defect_reports (
+CREATE TABLE IF NOT EXISTS defect_reports (
   id                    integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   vehicle_id            integer NOT NULL REFERENCES vehicles(id) ON DELETE RESTRICT,
   raw_text              text    NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE defect_reports (
 -- ISSUES - created ONLY when a coordinator confirms a defect report
 -- ("human confirms"). Holds the confirmed (possibly edited) values.
 -- ----------------------------------------------------------------------------
-CREATE TABLE issues (
+CREATE TABLE IF NOT EXISTS issues (
   id                integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   defect_report_id  integer NOT NULL UNIQUE                 -- one issue per report
                     REFERENCES defect_reports(id) ON DELETE RESTRICT,
@@ -77,7 +77,7 @@ CREATE TABLE issues (
 -- WORK_ORDERS - an actionable work item against an issue. The DB enforces
 -- valid status VALUES only; TRANSITIONS live in the service layer (TICKET-4).
 -- ----------------------------------------------------------------------------
-CREATE TABLE work_orders (
+CREATE TABLE IF NOT EXISTS work_orders (
   id           integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   issue_id     integer NOT NULL REFERENCES issues(id) ON DELETE RESTRICT,
   assigned_to  varchar(100),
@@ -95,8 +95,8 @@ CREATE TABLE work_orders (
 --     LOW-cardinality; these are access-pattern conveniences, not performance
 --     requirements at MVP scale.
 -- ----------------------------------------------------------------------------
-CREATE INDEX idx_defect_reports_vehicle_id ON defect_reports (vehicle_id);
-CREATE INDEX idx_defect_reports_status     ON defect_reports (status);
-CREATE INDEX idx_issues_status             ON issues (status);
-CREATE INDEX idx_work_orders_issue_id      ON work_orders (issue_id);
-CREATE INDEX idx_work_orders_status        ON work_orders (status);
+CREATE INDEX IF NOT EXISTS idx_defect_reports_vehicle_id ON defect_reports (vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_defect_reports_status     ON defect_reports (status);
+CREATE INDEX IF NOT EXISTS idx_issues_status             ON issues (status);
+CREATE INDEX IF NOT EXISTS idx_work_orders_issue_id      ON work_orders (issue_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_status        ON work_orders (status);

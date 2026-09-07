@@ -1,8 +1,29 @@
 # FleetMaintenance
 
-## Presentable Reference Prototype — AI-Assisted Fleet Maintenance Workflow
+## Problem
 
-This is a small portfolio/reference prototype demonstrating an **AI-assisted fleet maintenance workflow** from defect report through maintenance lifecycle. It is intentionally local and small: the goal is not to build a complete fleet-management product, but to demonstrate product thinking, workflow modelling, pragmatic software architecture, AI-assisted development, and responsible LLM integration.
+Fleet vehicles generate maintenance defects daily — a spongy brake pedal, a warning light, a strange engine noise. In many small-to-mid-size fleets, these reports arrive as unstructured text (email, chat, verbal) and must be manually triaged by a coordinator who decides: *What category is this? How severe is it? Does it need a work order?*
+
+This manual triage is repetitive, inconsistent, and slow. The same keywords appear across dozens of reports, yet each one is read and classified from scratch. Meanwhile, confirmed issues must be tracked through a maintenance lifecycle (created → in progress → completed/cancelled) with clear status transitions — skipping a step or allowing an invalid jump creates operational confusion.
+
+## Why This Exists
+
+This project is a reference prototype built to demonstrate three engineering concerns in a concrete, inspectable product:
+
+- **Workflow modelling** — Representing a real-world maintenance process (report → proposal → confirmation → issue → work order → lifecycle) as an explicit, enforceable state machine rather than implicit application behavior.
+- **Controlled AI integration** — Using AI as a proposal generator with mandatory human validation, contract-enforced output, and clear failure handling — never as an autonomous decision-maker.
+- **Clear responsibility separation** — Distinct layers for routing, business logic, data access, and AI analysis, with explicit boundaries (e.g., the analyzer receives only raw text; the service layer owns all status transitions).
+
+> **Note:** This is a finished reference project. It documents my first implementation steps using AI-assisted product development and does not reflect my current way of working. It serves as a snapshot of early exploration, not a statement of present-day practice.
+
+## User
+
+**Fleet maintenance coordinators** — the person (or small team) responsible for:
+- Receiving defect reports from drivers or technicians
+- Deciding which reports become actionable issues
+- Creating and tracking work orders through completion
+
+The product serves a single coordinator role: review AI-assisted proposals, confirm or reject them, and manage the resulting work orders. There are no multi-role permissions, no authentication, and no pagination — the scope is intentionally small.
 
 ## Core Workflow
 
@@ -28,9 +49,34 @@ Maintenance lifecycle
 - **Status transitions are validated** in the service layer; the generic transition endpoint enforces business rules
 - **No React, no auth, no pagination** — vanilla JS + EJS + plain CSS; no build step
 
-## Quick Start
+## Current Product State
 
-### Deterministic Core (No LLM Required)
+### What's Built
+
+All planned milestones (M0–M5) are complete:
+
+| Milestone | Outcome |
+|-----------|---------|
+| **M0 — Foundation** | Local application skeleton and development infrastructure |
+| **M1 — Manual Workflow** | Report → confirmation → issue → work order lifecycle without AI |
+| **M2 — AI-Assisted Workflow** | AI-backed report analysis behind a provider-agnostic contract |
+| **M3 — Coordinator Review UI** | Browser-based review and confirmation workflow |
+| **M4 — Work-Order UI** | Browser-based work-order management |
+| **M5 — Portfolio Polish** | Documentation, architecture record, tests, demo data, and final cleanup |
+
+### Technology Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Application** | Node.js (LTS), Express, EJS, vanilla JS + `fetch()`, plain CSS |
+| **Database** | PostgreSQL, `pg` / node-postgres, raw parameterized SQL, no ORM |
+| **AI Analyzer** | Fake analyzer (deterministic) or local Ollama; contract-validated proposals only |
+| **Testing** | 28 unit tests using fake db + fake analyzer; no live model required |
+| **Deployment** | Docker Compose for local development; no production deployment scripts |
+
+### Quick Start
+
+#### Deterministic Core (No LLM Required)
 
 The application can be run and tested **without Ollama or any local LLM** — the fake analyzer provides deterministic category/severity/summary suggestions for development and testing.
 
@@ -60,62 +106,56 @@ npm start
 
 The same application code works with both the fake analyzer and a local LLM — the provider is configured via `.env`.
 
-## Architecture Overview
+---
 
-The application follows a **browser → API → DB** pattern with a **human-in-the-loop** constraint at its core:
+## Product Visualization
 
-```text
-Browser (EJS + vanilla JS + plain CSS)
-      │
-      ▼
-API Routes (/api, /work-orders)
-      │
-      ▼
-Service Layer (business rules, status transitions)
-      │
-      ▼
-Database (PostgreSQL, raw parameterized SQL, no ORM)
-      │
-      ▼
-AI Analyzer (fake → local Ollama; contract-validated proposals only)
-```
+![FleetMaintenance Visualization](FleetMaintenance%20Visualization.png)
 
-**Key boundaries:**
-- **AI output is a PROPOSAL** — the analyzer's output is persisted as `ai_suggested_*` on a defect_report row; the coordinator still must confirm before an Issue can exist
-- **Human confirmation is mandatory** — the `confirmReport` service validates `category`, `severity`, `summary`, and `confirmedByName` before creating an Issue
-- **Status transitions are validated** in the service layer; the generic `POST /api/work-orders/:id/transition` endpoint enforces allowed transitions (`created → [in_progress, cancelled]`, `in_progress → [completed, cancelled]`)
-- **No ORM** — raw parameterized SQL via `pg`; all queries are explicit and auditable
-- **No React, no auth, no pagination** — the UI is server-rendered EJS with vanilla JS
+---
 
-## Technology Stack
+## Central Product Principles
 
-| Layer | Technology |
-|-------|-----------|
-| **Application** | Node.js (LTS), Express, EJS, vanilla JS + `fetch()`, plain CSS |
-| **Database** | PostgreSQL, `pg` / node-postgres, raw parameterized SQL, no ORM |
-| **AI Analyzer** | Fake analyzer (deterministic) or local Ollama; contract-validated proposals only |
-| **Testing** | 28 unit tests using fake db + fake analyzer; no live model required |
-| **Deployment** | Docker Compose for local development; no production deployment scripts |
+These principles define the product's boundaries and are enforced in the application architecture:
 
-## Quick Start (Condensed)
+1. **AI output is a PROPOSAL — never an Issue directly.** The analyzer's output is persisted as `ai_suggested_*` on a defect report row. The coordinator must explicitly confirm before an Issue can exist. The application never auto-creates Issues from AI analysis.
 
-```bash
-# 1. Install dependencies
-npm install
+2. **Human confirmation is mandatory.** The `confirmReport` service validates `category`, `severity`, `summary`, and `confirmedByName` before creating an Issue. No confirmation, no Issue.
 
-# 2. Set up the database (PostgreSQL required)
-npm run db:setup
+3. **Status transitions are validated business rules.** The generic `POST /api/work-orders/:id/transition` endpoint enforces allowed transitions: `created → [in_progress, cancelled]`, `in_progress → [completed, cancelled]`. Terminal states (`completed`, `cancelled`) accept no further transitions.
 
-# 3. Start the application
-npm start
+4. **No ORM — raw, auditable SQL.** All database access uses parameterized SQL via `pg`. Queries are explicit, reviewable, and not abstracted behind an ORM.
 
-# 3. Visit http://localhost:3000 to view the work-order overview
+5. **Deliberately simple stack.** No React, no auth, no pagination, no build step. Server-rendered EJS with vanilla JavaScript and plain CSS. The goal is a presentable reference prototype, not a production-scale product.
 
-# 4. Run the test suite
-npm test   # 28/28 passing, no live model required
-```
+## Links for Further Documentation
 
-## API Endpoints (Summary)
+### Architecture & Design
+
+![Architecture Diagram](docs/architecture-diagram.svg)
+
+- [Architecture Overview](docs/architecture.md) — Component boundaries, data flow diagrams, database schema, human-in-the-loop boundary
+- [Engineering Log](fleet-maintenance-engineering-log.md) — Living document capturing product, architecture, and implementation decisions
+- [Technical Decisions (ADRs)](fleet-maintenance-engineering-log.md#14-technical-decisions-adrs) — 7 architectural decision records:
+  - **ADR-001:** Deliberately simple MVP stack
+  - **ADR-002:** Separate AI proposals from human-confirmed issues
+  - **ADR-003:** Provider-agnostic analyzer contract
+  - **ADR-004:** Human confirmation required before creating Issues
+  - **ADR-005:** Local LLM deployment and model selection
+  - **ADR-006:** Structured-output validation and AI failure handling
+  - **ADR-007:** Local LLM security boundary and LAN-only deployment
+
+### Testing
+- [Testing Documentation](docs/testing.md) — Test files, patterns (fake DB/analyzer), running instructions, coverage gaps
+- **28 automated tests** covering:
+  - `tests/reportService.test.js` — Defect report workflow (manual & AI submissions, confirmation, rejection)
+  - `tests/workOrderService.test.js` — Work-order creation, status transitions, valid/invalid jumps
+  - `tests/localAnalyzer.test.js` — Fake analyzer: deterministic mapping, contract validation, error handling
+
+### Demo & Usage
+- [Demo Walkthrough](docs/demo-walkthrough.md) — End-to-end scenario showing the complete workflow
+
+### API Reference
 
 | Method | Path | Description |
 |--------|------|-------------|
@@ -129,40 +169,7 @@ npm test   # 28/28 passing, no live model required
 | `POST` | `/api/work-orders/:id/transition` | Transition a work order to a new status |
 | `GET` | `/api/health` | Health check endpoint |
 
-## Project Milestones
-
-| Milestone | Outcome |
-|-----------|---------|
-| **M0 — Foundation** | Local application skeleton and development infrastructure |
-| **M1 — Manual Workflow** | Report → confirmation → issue → work order lifecycle without AI |
-| **M2 — AI-Assisted Workflow** | AI-backed report analysis behind a provider-agnostic contract |
-| **M3 — Coordinator Review UI** | Browser-based review and confirmation workflow |
-| **M4 — Work-Order UI** | Browser-based work-order management |
-| **M5 — Portfolio Polish** | Documentation, architecture record, tests, demo data, and final cleanup |
-
-## Technical Decisions (ADRs)
-
-The following Architectural Decision Records are documented in the engineering log:
-
-- **ADR-001:** Deliberately simple MVP stack
-- **ADR-002:** Separate AI proposals from human-confirmed issues
-- **ADR-003:** Provider-agnostic analyzer contract
-- **ADR-004:** Human confirmation required before creating Issues
-- **ADR-005:** Local LLM deployment and model selection
-- **ADR-006:** Structured-output validation and AI failure handling
-- **ADR-007:** Local LLM security boundary and LAN-only deployment
-
-## Test Suite
-
-The project includes **28 automated tests** that cover the application without requiring a live model:
-
-- **`tests/reportService.test.js`** — Defect report workflow (manual & AI submissions, confirmation, rejection)
-- **`tests/workOrderService.test.js`** — Work-order creation, status transitions, valid/invalid jumps
-- **`tests/localAnalyzer.test.js`** — Fake analyzer: deterministic mapping, contract validation, error handling
-
-**To run:** `npm test` — all 28 tests pass without requiring a live LLM model.
-
-## Folder Structure (Brief)
+### Project Structure
 
 ```text
 src/              # Application source
@@ -174,7 +181,7 @@ src/              # Application source
 
 views/            # EJS templates
   reports/        # Coordinator review UI
-  work-orders/    # Work-order overview (TICKET-8)
+  work-orders/    # Work-order overview
 
 public/           # Static assets (CSS, JS)
   css/            # Plain CSS styles
@@ -182,13 +189,16 @@ public/           # Static assets (CSS, JS)
 
 tests/            # Unit tests (fake db, mock analyzer)
 
-views/partials/   # Reusable EJS partials
+db/               # Database schema, seed, and setup script
+docs/             # Architecture, testing, and demo documentation
 ```
-
-## License
-
-This project is for portfolio/reference purposes. See the engineering log for architectural and product decisions.
 
 ---
 
-*Last updated: 2026-08-15*
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+
+---
+
+*Last updated: 2026-09-07*
