@@ -43,6 +43,12 @@ Work Order
 Maintenance lifecycle
 ```
 
+## Product Visualization
+
+![FleetMaintenance Visualization](FleetMaintenance%20Visualization.png)
+
+---
+
 **Key boundaries:**
 - **AI output is a PROPOSAL** — never an Issue directly; the coordinator must confirm before an Issue exists
 - **Human confirmation is mandatory** — the application never auto-creates Issues from AI analysis
@@ -105,12 +111,6 @@ npm start
 ```
 
 The same application code works with both the fake analyzer and a local LLM — the provider is configured via `.env`.
-
----
-
-## Product Visualization
-
-![FleetMaintenance Visualization](FleetMaintenance%20Visualization.png)
 
 ---
 
